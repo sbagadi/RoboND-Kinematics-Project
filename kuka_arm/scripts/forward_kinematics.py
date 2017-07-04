@@ -16,7 +16,7 @@ alpha0, alpha1, alpha2, alpha3, alpha4, alpha5, alpha6 = symbols('alpha0:7')
 s = {alpha0:      0, a0:      0, d1:  0.75,
      alpha1:  -pi/2, a1:   0.35, d2:     0, q2: q2-pi/2,
      alpha2:      0, a2:   1.25, d3:     0,
-     alpha3:      0, a3: -0.054, d4:   1.5,
+     alpha3:  -pi/2, a3: -0.054, d4:   1.5,
      alpha4:   pi/2, a4:      0, d5:     0,
      alpha5:  -pi/2, a5:      0, d6:     0,
      alpha6:      0, a6:      0, d7: 0.303, q7: 0}
@@ -93,13 +93,27 @@ R_y = Matrix([[ cos(-np.pi/2),           0, sin(-np.pi/2),      0],
 R_corr = simplify(R_z * R_y)
 
 # Numerically evaluate transforms (compare this with output of tf_echo!)
-print("T0_1 = ", T0_1.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
-print("T0_2 = ", T0_2.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
-print("T0_3 = ", T0_3.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
-print("T0_4 = ", T0_4.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
-print("T0_5 = ", T0_5.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
-print("T0_6 = ", T0_6.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
-print("T0_G = ", T0_G.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
+# print("T0_1 = ", T0_1.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
+# print("T0_2 = ", T0_2.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
+# print("T0_3 = ", T0_3.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
+# print("T0_4 = ", T0_4.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
+# print("T0_5 = ", T0_5.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
+# print("T0_6 = ", T0_6.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
+# print("T0_G = ", T0_G.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
 
 # Total homogeneous transform between base_link and gripper_link with orientation correction applied.
 T_total = simplify(T0_G * R_corr)
+
+# T3_5 = simplify(T3_4 * T4_5)
+# T3_6 = simplify(T3_5 * T5_6)
+# T3_G = simplify(T3_6 * T6_G)
+# # T3_G = simplify(T3_4 * T4_5 * T5_6 * T6_G)
+# T3_base = simplify(T3_6 * R_corr)
+# # print T3_6, '\n', T3_base
+# print T3_6[0:3, 0:3]
+
+def evaluate_forward_kinematics(theta1, theta2, theta3, theta4, theta5, theta6):
+    total = T_total.evalf(subs={q1: theta1, q2: theta2, q3: theta3, q4: theta4, q5: theta5, q6: theta6})
+    return (total[0, 3], total[1, 3], total[2, 3])
+
+# print evaluate_forward_kinematics(0.6, -0.16, 0.17, -0.67, 0.19, 1.79)
