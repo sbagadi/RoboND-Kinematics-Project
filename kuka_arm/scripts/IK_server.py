@@ -19,7 +19,6 @@ from geometry_msgs.msg import Pose
 from mpmath import *
 from sympy import *
 import numpy as np
-from forward_kinematics import evaluate_forward_kinematics
 
 # Define DH param symbols
 d1, d2, d3, d4, d5, d6, d7 = symbols('d1:8')
@@ -63,56 +62,62 @@ T2_3 = Matrix([[            cos(q3),            -sin(q3),            0,         
 T2_3 = T2_3.subs(s)
 
 # link_3 to link_4
-# T3_4 = Matrix([[            cos(q4),            -sin(q4),            0,              a3],
-#                [sin(q4)*cos(alpha3), cos(q4)*cos(alpha3), -sin(alpha3), -sin(alpha3)*d4],
-#                [sin(q4)*sin(alpha3), cos(q4)*sin(alpha3),  cos(alpha3),  cos(alpha3)*d4],
-#                [                  0,                   0,            0,               1]])
-# T3_4 = T3_4.subs(s)
+T3_4 = Matrix([[            cos(q4),            -sin(q4),            0,              a3],
+               [sin(q4)*cos(alpha3), cos(q4)*cos(alpha3), -sin(alpha3), -sin(alpha3)*d4],
+               [sin(q4)*sin(alpha3), cos(q4)*sin(alpha3),  cos(alpha3),  cos(alpha3)*d4],
+               [                  0,                   0,            0,               1]])
+T3_4 = T3_4.subs(s)
 
 # link_4 to link_5
-# T4_5 = Matrix([[            cos(q5),            -sin(q5),            0,              a4],
-#                [sin(q5)*cos(alpha4), cos(q5)*cos(alpha4), -sin(alpha4), -sin(alpha4)*d5],
-#                [sin(q5)*sin(alpha4), cos(q5)*sin(alpha4),  cos(alpha4),  cos(alpha4)*d5],
-#                [                  0,                   0,            0,               1]])
-# T4_5 = T4_5.subs(s)
+T4_5 = Matrix([[            cos(q5),            -sin(q5),            0,              a4],
+               [sin(q5)*cos(alpha4), cos(q5)*cos(alpha4), -sin(alpha4), -sin(alpha4)*d5],
+               [sin(q5)*sin(alpha4), cos(q5)*sin(alpha4),  cos(alpha4),  cos(alpha4)*d5],
+               [                  0,                   0,            0,               1]])
+T4_5 = T4_5.subs(s)
 
-# # link_5 to link_6
-# T5_6 = Matrix([[            cos(q6),            -sin(q6),            0,              a5],
-#                [sin(q6)*cos(alpha5), cos(q6)*cos(alpha5), -sin(alpha5), -sin(alpha5)*d6],
-#                [sin(q6)*sin(alpha5), cos(q6)*sin(alpha5),  cos(alpha5),  cos(alpha5)*d6],
-#                [                  0,                   0,            0,               1]])
-# T5_6 = T5_6.subs(s)
+# link_5 to link_6
+T5_6 = Matrix([[            cos(q6),            -sin(q6),            0,              a5],
+               [sin(q6)*cos(alpha5), cos(q6)*cos(alpha5), -sin(alpha5), -sin(alpha5)*d6],
+               [sin(q6)*sin(alpha5), cos(q6)*sin(alpha5),  cos(alpha5),  cos(alpha5)*d6],
+               [                  0,                   0,            0,               1]])
+T5_6 = T5_6.subs(s)
 
 # link_6 to gripper
-# T6_G = Matrix([[            cos(q7),            -sin(q7),            0,              a6],
-#                [sin(q7)*cos(alpha6), cos(q7)*cos(alpha6), -sin(alpha6), -sin(alpha6)*d7],
-#                [sin(q7)*sin(alpha6), cos(q7)*sin(alpha6),  cos(alpha6),  cos(alpha6)*d7],
-#                [                  0,                   0,            0,               1]])
-# T6_G = T6_G.subs(s)
+T6_G = Matrix([[            cos(q7),            -sin(q7),            0,              a6],
+               [sin(q7)*cos(alpha6), cos(q7)*cos(alpha6), -sin(alpha6), -sin(alpha6)*d7],
+               [sin(q7)*sin(alpha6), cos(q7)*sin(alpha6),  cos(alpha6),  cos(alpha6)*d7],
+               [                  0,                   0,            0,               1]])
+T6_G = T6_G.subs(s)
 
 # # Composition of Homogeneous Transforms.
 T0_2 = simplify(T0_1 * T1_2)  # base_link to link_2
 T0_3 = simplify(T0_2 * T2_3)  # base_link to link_3
-# T0_4 = simplify(T0_3 * T3_4)  # base_link to link_4
-# T0_5 = simplify(T0_4 * T4_5)  # base_link to link_5
-# T0_6 = simplify(T0_5 * T5_6)  # base_link to link_6
-# T0_G = simplify(T0_6 * T6_G)  # base_link to gripper
-#
-# # Correction needed to account for the orientation difference between definition of Gripper Link in URDF
-# # versus DH convention.
-# R_z = Matrix([[    cos(pi), -sin(pi),             0,      0],
-#               [    sin(pi),  cos(pi),             0,      0],
-#               [          0,        0,             1,      0],
-#               [          0,        0,             0,      1]])
-#
-# R_y = Matrix([[ cos(-pi/2),        0,    sin(-pi/2),      0],
-#               [          0,        1,             0,      0],
-#               [-sin(-pi/2),        0,    cos(-pi/2),      0],
-#               [          0,        0,             0,      1]])
-# R_corr = simplify(R_z * R_y)
-#
-# # Total homogeneous transform between base_link and gripper_link with orientation correction applied.
-# T_total = simplify(T0_G * R_corr)
+T0_4 = simplify(T0_3 * T3_4)  # base_link to link_4
+T0_5 = simplify(T0_4 * T4_5)  # base_link to link_5
+T0_6 = simplify(T0_5 * T5_6)  # base_link to link_6
+T0_G = simplify(T0_6 * T6_G)  # base_link to gripper
+
+# Correction needed to account for the orientation difference between definition of Gripper Link in URDF
+# versus DH convention.
+R_z = Matrix([[    cos(pi), -sin(pi),             0,      0],
+              [    sin(pi),  cos(pi),             0,      0],
+              [          0,        0,             1,      0],
+              [          0,        0,             0,      1]])
+
+R_y = Matrix([[ cos(-pi/2),        0,    sin(-pi/2),      0],
+              [          0,        1,             0,      0],
+              [-sin(-pi/2),        0,    cos(-pi/2),      0],
+              [          0,        0,             0,      1]])
+R_corr = simplify(R_z * R_y)
+
+# Total homogeneous transform between base_link and gripper_link with orientation correction applied.
+T_total = simplify(T0_G * R_corr)
+
+
+def evaluate_forward_kinematics(theta1, theta2, theta3, theta4, theta5, theta6):
+    total = T_total.evalf(subs={q1: theta1, q2: theta2, q3: theta3, q4: theta4, q5: theta5, q6: theta6})
+    return total[0, 3], total[1, 3], total[2, 3]
+
 
 R, P, Y = symbols('R, P, Y')
 R_x = Matrix([[1,      0,       0],
@@ -150,56 +155,11 @@ def debug_calculate_IK():
     # (px, py, pz) = (2.04300328191, -3.27098214715e-07, 1.94599164004)
     # (roll, pitch, yaw) = (1.58570096609e-07, 5.14022570464e-06, -1.60106544558e-07)
     #
-    # (px, py, pz) = (2.01707456364, 0.206786727217, 2.13930989103)
-    # (roll, pitch, yaw) = (-0.0358968005668, -0.149389381877, 0.100348787505)
-    #
-    # (px, py, pz) = (1.94879772985, 0.403027451294, 2.33051932868)
-    # (roll, pitch, yaw) = (-0.0701929090143, -0.298480433717, 0.196435943183)
-    #
-    # (px, py, pz) = (1.85639474105, 0.568706363488, 2.49474496292)
-    # (roll, pitch, yaw) = (-0.0971882896625, -0.43286506654, 0.279815103615)
-    #
-    # (px, py, pz) = (1.73565152023, 0.713782144824, 2.65351394562)
-    # (roll, pitch, yaw) = (-0.119052081093, -0.566288213664, 0.357082154036)
-    #
-    # (px, py, pz) = (1.63057859711, 0.821373100449, 2.76401707791)
-    # (roll, pitch, yaw) = (-0.127213525882, -0.670341351521, 0.412413169628)
-    #
     # (px, py, pz) = (1.51315888411, 0.912443637483, 2.86997051454)
     # (roll, pitch, yaw) = (-0.126707965534, -0.772660127748, 0.458727422927)
     #
-    # (px, py, pz) = (1.45114409588, 0.98102041606, 2.91309009446)
-    # (roll, pitch, yaw) = (-0.111140687682, -0.831302355611, 0.477510854162)
-    #
-    # (px, py, pz) = (1.38541611224, 1.04444274292, 2.95473314203)
-    # (roll, pitch, yaw) = (-0.0873502662687, -0.887647564837, 0.487494286333)
-    #
-    # (px, py, pz) = (1.40426313865, 1.10323425399, 2.91834336549)
-    # (roll, pitch, yaw) = (-0.0592894232713, -0.887510387467, 0.475139842241)
-    #
-    # (px, py, pz) = (1.42060509425, 1.16245791548, 2.88045210147)
-    # (roll, pitch, yaw) = (-0.0304672944938, -0.885711965091, 0.460508801226)
-    #
-    # (px, py, pz) = (1.49797216739, 1.21672871831, 2.77963707044)
-    # (roll, pitch, yaw) = (-0.00808505227664, -0.842964174902, 0.43680416131)
-    #
-    # (px, py, pz) = (1.57039463146, 1.26605017558, 2.67401765164)
-    # (roll, pitch, yaw) = (0.0117628856159, -0.799506075005, 0.413169362707)
-    #
-    # (px, py, pz) = (1.67625571185, 1.29860392369, 2.5195356699)
-    # (roll, pitch, yaw) = (0.0251053285112, -0.729715836457, 0.383612774713)
-    #
     # (px, py, pz) = (1.77226567827, 1.31854834519, 2.35869234617)
     # (roll, pitch, yaw) = (0.0360590763007, -0.659842294056, 0.353075723536)
-    #
-    # (px, py, pz) = (1.87344373408, 1.31543640121, 2.16930787697)
-    # (roll, pitch, yaw) = (0.0431067398582, -0.57729667112, 0.317614613976)
-    #
-    # (px, py, pz) = (1.95911623367, 1.29627096211, 1.97588296912)
-    # (roll, pitch, yaw) = (0.0477222917309, -0.495082652544, 0.280326505243)
-    #
-    # (px, py, pz) = (2.01444594732, 1.27088402825, 1.82340006358)
-    # (roll, pitch, yaw) = (0.0493251784281, -0.431025161595, 0.249846400461)
     #
     # (px, py, pz) = (2.05909508656, 1.23706120462, 1.67084618882)
     # (roll, pitch, yaw) = (0.0490620094169, -0.36734636027, 0.218193333796)
@@ -212,12 +172,6 @@ def debug_calculate_IK():
     #
     # (px, py, pz) = (2.1258525072, 1.09234531968, 1.22312928294)
     # (roll, pitch, yaw) = (0.0354791245817, -0.179555422553, 0.115589602507)
-    #
-    # (px, py, pz) = (2.12523135442, 1.0323831248, 1.0805572811)
-    # (roll, pitch, yaw) = (0.0261365985352, -0.11841110929, 0.0785636422627)
-    #
-    # (px, py, pz) = (2.1132217851, 0.967987193221, 0.942915752317)
-    # (roll, pitch, yaw) = (0.0140962538429, -0.0582047703001, 0.0399534311959)
     #
     # (px, py, pz) = (2.09002597191, 0.900040987518, 0.811100065526)
     # (roll, pitch, yaw) = (-0.000827238027711, 0.00091896481172, -0.000362364530142)
@@ -255,14 +209,35 @@ def calculate_IK(px, py, pz, roll, pitch, yaw, debug=False):
     l2 = sqrt((o2[0] - wx)**2 + (o2[1] - wy)**2 + (o2[2] - wz)**2)
     l3 = sqrt(s[a3]**2 + s[d4]**2)
 
-    D1 = (l2**2 - s[a2]**2 - l3**2) / (2 * s[a2] * l3)  # http://smpp.northwestern.edu/savedLiterature/Spong_Textbook.pdf
+    # Lets take a triangle of with sides a, b, c and angles alpha (opposite to a), beta (opposite to b) and gamma
+    # (opposite to c).
+    #
+    # Using cosine rule, we get:
+    # cos(alpha) = (b**2 + c**2 - a**2) / (2 * b * c) := D
+    # alpha = cos^-1(D)
+    # sin(alpha) = -/+ sqrt(1 - cos(alpha)**2) => sin(alpha) = -/+ sqrt(1 - D**2)
+    #
+    # we can now use atan2 to get the angle alpha with the correct sign
+    # alpha = atan2(sin(alpha), cos(alpha) = atan2(sqrt(1 - D**2), D)
+    #
+    # Source: http://smpp.northwestern.edu/savedLiterature/Spong_Textbook.pdf
+    #
+    # The phi angle is formed by a2 and l3 with l2 as the opposite side of the triangle.
+    # Here we are actually interested in the complimentary angle (alpha = 1 - phi) so we use cos(alpha) = -cos(phi)
+    D1 = (l2**2 - s[a2]**2 - l3**2) / (2 * s[a2] * l3)
+    D1 = np.clip(D1, None, 1)  # Avoids getting imaginary numbers.
 
     alpha = atan2(sqrt(1 - D1**2), D1)
+
+    # This is to account for the offset between joint 3 and joint 4 given by a2.
     beta = atan2(s[a3], s[d4])
 
     theta3 = (alpha + beta) - (pi / 2)
 
+    # Similar to D1 calculations.
+    # the gamma angle is formed by the sides a2 and l2 with l3 as the opposite side).
     D2 = (s[a2]**2 + l2**2 - l3**2) / (2 * s[a2] * l2)
+    D2 = np.clip(D2, None, 1)  # Avoids getting imaginary numbers.
 
     gamma = atan2((wz - o2[2]), sqrt((o2[0] - wx)**2 + (o2[1] - wy)**2))
     delta = atan2(sqrt(1 - D2**2), D2)
@@ -287,15 +262,6 @@ def calculate_IK(px, py, pz, roll, pitch, yaw, debug=False):
     theta5 = atan2(sqrt(R3_6[0, 2]**2 + R3_6[2, 2]**2), R3_6[1, 2])
     theta4 = atan2(R3_6[2, 2], -R3_6[0, 2])
 
-    # theta4, theta5, theta6 = tf.transformations.euler_from_matrix(np.array(R3_6).astype(np.float64), axes='rzxy')
-
-    theta1 = np.clip(np.float64(theta1), -3.23, 3.23)
-    theta2 = np.clip(np.float64(theta2), -0.79, 1.48)
-    theta3 = np.clip(np.float64(theta3), -3.67, 1.13)
-    theta4 = np.clip(np.float64(theta4), -6.11, 6.11)
-    theta5 = np.clip(theta5, -2.18, 2.18)
-    theta6 = np.clip(np.float64(theta6), -6.11, 6.11)
-
     print '(theta1, theta2, theta3, theta4, theta5, theta6) = (', \
         theta1, ', ', theta2, ', ',  theta3, ', ', theta4, ', ', theta5, ', ', theta6, ')'
     return theta1, theta2, theta3, theta4, theta5, theta6
@@ -308,6 +274,7 @@ def handle_calculate_IK(req):
     else:
         # Initialize service response
         joint_trajectory_list = []
+        total_error = 0
         for x in xrange(0, len(req.poses)):
             # IK code starts here
             joint_trajectory_point = JointTrajectoryPoint()
@@ -327,12 +294,16 @@ def handle_calculate_IK(req):
             # Step 1: Calculate Wrist center.
 
             theta1, theta2, theta3, theta4, theta5, theta6 = calculate_IK(px, py, pz, roll, pitch, yaw)
+            px_f, py_f, pz_f = evaluate_forward_kinematics(theta1, theta2, theta3, theta4, theta5, theta6)
+            total_error += (px_f - px)**2 + (py_f - py)**2 + (pz_f - pz)**2
 
             # Populate response for the IK request
             # In the next line replace theta1,theta2...,theta6 by your joint angle variables
             joint_trajectory_point.positions = [theta1, theta2, theta3, theta4, theta5, theta6]
             joint_trajectory_list.append(joint_trajectory_point)
 
+        mean_square_error = total_error / len(req.poses)
+        print 'Mean square error = ', mean_square_error
         rospy.loginfo("length of Joint Trajectory List: %s" % len(joint_trajectory_list))
         return CalculateIKResponse(joint_trajectory_list)
 
