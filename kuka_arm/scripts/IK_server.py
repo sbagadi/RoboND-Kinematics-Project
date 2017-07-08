@@ -189,17 +189,22 @@ def debug_calculate_IK():
 
 
 def calculate_IK(px, py, pz, roll, pitch, yaw, debug=False):
+    # Get rotation matrix from gripper pose.
     R0_G = Rxyz.evalf(subs={R: roll, P: pitch, Y: yaw})
 
-    # Calculate Rrpy
+    # Calculate Rrpy.
     R_corr = R_z * R_y
     R_corr = R_corr.evalf(subs={P: -(pi/2), Y: pi})
     Rrpy = R0_G[0:3, 0:3] * R_corr
 
-    wx = px - (.303) * R0_G[0, 0]
-    wy = py - (.303) * R0_G[1, 0]
-    wz = pz - (.303) * R0_G[2, 0]
+    # Get wrist center position.
+    wx = px - (s[d6] + s[d7]) * R0_G[0, 0]
+    wy = py - (s[d6] + s[d7]) * R0_G[1, 0]
+    wz = pz - (s[d6] + s[d7]) * R0_G[2, 0]
 
+    # theta1 can be easily calculated by rotating the first joint towards the wrist center. Imagine a vector from origin
+    # of the base frame to the projection of the wrist center on the x-y plane. The rotation angle is the angle between
+    # this vector and the x-axis.
     theta1 = atan2(wy, wx)
 
     # Find the origin of the second link using theta1
@@ -225,7 +230,7 @@ def calculate_IK(px, py, pz, roll, pitch, yaw, debug=False):
     # The phi angle is formed by a2 and l3 with l2 as the opposite side of the triangle.
     # Here we are actually interested in the complimentary angle (alpha = 1 - phi) so we use cos(alpha) = -cos(phi)
     D1 = (l2**2 - s[a2]**2 - l3**2) / (2 * s[a2] * l3)
-    D1 = np.clip(D1, None, 1)  # Avoids getting imaginary numbers.
+    D1 = np.clip(D1, None, 1.0)  # Avoids getting imaginary numbers.
 
     alpha = atan2(sqrt(1 - D1**2), D1)
 
@@ -237,7 +242,7 @@ def calculate_IK(px, py, pz, roll, pitch, yaw, debug=False):
     # Similar to D1 calculations.
     # the gamma angle is formed by the sides a2 and l2 with l3 as the opposite side).
     D2 = (s[a2]**2 + l2**2 - l3**2) / (2 * s[a2] * l2)
-    D2 = np.clip(D2, None, 1)  # Avoids getting imaginary numbers.
+    D2 = np.clip(D2, None, 1.0)  # Avoids getting imaginary numbers.
 
     gamma = atan2((wz - o2[2]), sqrt((o2[0] - wx)**2 + (o2[1] - wy)**2))
     delta = atan2(sqrt(1 - D2**2), D2)
@@ -320,8 +325,7 @@ if __name__ == "__main__":
     parser.add_option("-d", action="store_true", dest="run_debug", default=False)
     (options, args) = parser.parse_args()
     if options.run_debug:
-        print 'In debug mode'
+        print 'Starting in debug mode'
         debug_calculate_IK()
     else:
-        print 'Starting IK server'
         IK_server()

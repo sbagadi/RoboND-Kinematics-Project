@@ -45,12 +45,16 @@ To transform the reference frame from joint *i - 1* to joint *i* four
 transformations need to be performed (2 rotations and 2 translations) in
 the following order:
 
-1. Rotate about the *X* axis by an angle of *&alpha;<sub>i - 1</sub>*.
-2. Translate along the *X* axis by a length of *a<sub>i - 1</sub>*.
-3. Rotate about the *Z* axis by an angle of *&theta;<sub>i</sub>*.
-4. Translate about the *Z* axis by a length of *d<sub>i</sub>*.
+1. Rotate about the ***X*** axis by an angle of
+   **&alpha;<sub>i - 1</sub>**.
+2. Translate along the ***X*** axis by a length of
+   **a<sub>i - 1</sub>**.
+3. Rotate about the ***Z*** axis by an angle of
+   **&theta;<sub>i</sub>**.
+4. Translate about the ***Z*** axis by a length of **d<sub>i</sub>**.
 
-The total transformation from frame *i - 1* to *i* can be written as
+The total transformation from frame ***i - 1*** to ***i*** can be
+written as
 
 ***<sup>i - 1</sup><sub>i</sub> T =
 R<sub>X</sub>(&alpha;<sub>i - 1</sub>)
@@ -60,50 +64,54 @@ D<sub>X</sub>(d<sub>i</sub>)***
 
 The resulting Homogeneous Transformation matrix is
 
-***<sup>i - 1</sup><sub>i</sub> T =&#9;\[\[ &#9;cos(&theta;<sub>i</sub>), &#9; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;-sin(&theta;<sub>i</sub>), &#9;&#9;0, &#9; &nbsp; &nbsp;a<sub>i - 1</sub> ]*** <br>
-&#9; ***\[ sin(&theta;<sub>i</sub>)cos(&alpha;<sub>i - 1</sub>), &nbsp; cos(&theta;<sub>i</sub>)cos(&alpha;<sub>i - 1</sub>), &#9; &nbsp; &nbsp; -sin(&alpha;<sub>i - 1</sub>), &nbsp; &nbsp; &nbsp;-sin(&alpha;<sub>i - 1</sub>) d<sub>i</sub>]*** <br>
-&#9; ***\[ sin(&theta;<sub>i</sub>)cos(&alpha;<sub>i - 1</sub>), &nbsp; cos(&theta;<sub>i</sub>)cos(&alpha;<sub>i - 1</sub>),&#9; &nbsp; &nbsp; cos(&alpha;<sub>i - 1</sub>), &nbsp; &nbsp; &nbsp; cos(&alpha;<sub>i - 1</sub>) d<sub>i</sub>]*** <br>
-&#9; ***\[ &#9; &nbsp; &nbsp; &nbsp; &nbsp; 0, &#9; &#9;&nbsp; &nbsp;0, &#9;&#9;0, &#9;&nbsp; &nbsp;&nbsp; &nbsp; &nbsp; 1]]*** <br>
+```
+T = Matrix[[            cos(θi),           -sin(θi),            0,          a(i - 1)],
+           [ sin(θi)cos(αi - 1), cos(θi)cos(αi - 1), -sin(αi - 1), -sin(αi - 1) * di],
+           [ sin(θi)cos(αi - 1), cos(θi)cos(αi - 1),  cos(αi - 1),  cos(αi - 1) * di],
+           [                  0,                  0,            0,                 1]]
+```
 
-By substituting the values for *&theta;<sub>i</sub>*,
-*a<sub>i - 1</sub>*, *&alpha;<sub>i - 1</sub>* and *d<sub>i</sub>* with
-the values in the DH parameters  for each link we get the following
-simplified matrices:
+By substituting the values for **&theta;<sub>i</sub>**,
+**a<sub>i - 1</sub>**, ***&alpha;<sub>i - 1</sub>*** and
+***d<sub>i</sub>*** with the values in the DH parameters  for each link
+we get the following simplified matrices:
 
-***<sup>0</sup><sub>1</sub>T = &#9;\[\[ cos(&theta;<sub>1</sub>), &#9;-sin(&theta;<sub>1</sub>), &#9;0, &#9;0]*** <br>
-***&#9; \[ sin(&theta;<sub>1</sub>), &#9;cos(&theta;<sub>1</sub>), &#9;0, &#9;0]*** <br>
-***&#9; \[ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 0, &#9; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0, &#9;1, &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0.75]*** <br>
-***&#9; \[ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 0, &#9; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0, &#9;0,    &#9;1]]*** <br>
+```
+T0_1 = Matrix[[ cos(θ1),   -sin(θ1),    0,      0],
+              [ sin(θ1),    cos(θ1),    0,      0],
+              [       0,          0,    1,   0.75],
+              [       0,          0,    0,      1]]
 
-***<sup>1</sup><sub>2</sub>T = &#9;\[\[ sin(&theta;<sub>2</sub>), &#9;cos(&theta;<sub>2</sub>), &#9;0, &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0.35]*** <br>
-***&#9; \[ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 0, &#9; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0, &#9;1, &#9;0]*** <br>
-***&#9; \[ cos(&theta;<sub>2</sub>), &#9;-sin(&theta;<sub>2</sub>), &#9;0, &#9;0]*** <br>
-***&#9; \[ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 0, &#9; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0, &#9;0,    &#9;1]]***
+T1_2 = Matrix[[ sin(θ2),    cos(θ2),    0,  0.035],
+              [       0,          0,    1,      0],
+              [ cos(θ2),   -sin(θ2),    0,      0],
+              [       0,          0,    0,      1]]
 
-***<sup>2</sup><sub>3</sub>T = &#9;\[\[ cos(&theta;<sub>3</sub>), &#9;-sin(&theta;<sub>3</sub>), &#9;0, &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;1.25]*** <br>
-***&#9; \[ sin(&theta;<sub>3</sub>), &#9;cos(&theta;<sub>3</sub>), &#9;0, &#9;0]*** <br>
-***&#9; \[ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 0, &#9; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0, &#9;1, &#9;0]*** <br>
-***&#9; \[ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 0, &#9; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0, &#9;0,    &#9;1]]*** <br>
+T2_3 = Matrix[[ cos(θ3),   -sin(θ3),    0,   1.25],
+              [ sin(θ3),    cos(θ3),    0,      0],
+              [       0,          0,    1,      0],
+              [       0,          0,    0,      1]]
 
-***<sup>3</sup><sub>4</sub>T = &#9;\[\[  cos(&theta;<sub>4</sub>), &#9;-sin(&theta;<sub>4</sub>), &#9;0, &nbsp; &nbsp; &nbsp;-0.054]*** <br>
-***&#9; \[ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0, &#9; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0, &#9;1,  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 1.5]*** <br>
-***&#9; \[-sin(&theta;<sub>4</sub>),&nbsp;-cos(&theta;<sub>4</sub>), &#9;0,&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 0]*** <br>
-***&#9; \[ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 0, &#9; &nbsp; &nbsp; &nbsp; &nbsp; 0, &#9;0,    &#9;1]]*** <br>
+T3_4 = Matrix[[ cos(θ4),   -sin(θ4),    0, -0.054],
+              [       0,          0,    1,    1.5],
+              [-sin(θ4),   -cos(θ4),    0,      0],
+              [       0,          0,    0,      1]]
 
-***<sup>4</sup><sub>5</sub>T = &#9;\[\[ cos(&theta;<sub>5</sub>), -sin(&theta;<sub>5</sub>), &#9;0, &#9;0]*** <br>
-***&#9; \[ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 0, &#9; &nbsp; &nbsp; &nbsp; &nbsp; 0, &#9;-1, &#9;0]*** <br>
-***&#9; \[ sin(&theta;<sub>5</sub>), &nbsp;cos(&theta;<sub>5</sub>), &#9;0, &#9;0]*** <br>
-***&#9; \[ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 0, &#9; &nbsp; &nbsp; &nbsp; &nbsp; 0, &#9;0,    &#9;1]]*** <br>
+T4_5 = Matrix[[ cos(θ5),   -sin(θ5),    0,      0],
+              [       0,          0,   -1,      0],
+              [ sin(θ5),    cos(θ5),    0,      0],
+              [       0,          0,    0,      1]]
 
-***<sup>5</sup><sub>6</sub>T = &#9;\[\[ cos(&theta;<sub>6</sub>), -sin(&theta;<sub>6</sub>), &#9;0, &#9;0]*** <br>
-***&#9; \[ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 0, &#9; &nbsp; &nbsp; &nbsp; &nbsp; 0, &#9;1, &#9;0]*** <br>
-***&#9; \[ -sin(&theta;<sub>6</sub>),-cos(&theta;<sub>6</sub>), &#9;0, &#9;0]*** <br>
-***&#9; \[ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 0, &#9; &nbsp; &nbsp; &nbsp; &nbsp; 0, &#9;0,    &#9;1]]*** <br>
+T5_6 = Matrix[[ cos(θ6),   -sin(θ6),    0,      0],
+              [       0,          0,    1,      0],
+              [-sin(θ1),   -cos(θ1),    0,      0],
+              [       0,          0,    0,      1]]
 
-***<sup>6</sup><sub>G</sub>T = &#9;\[\[ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 1, &#9; &nbsp; &nbsp; &nbsp; &nbsp; 0, &#9;0, &#9;0]*** <br>
-***&#9; \[ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 0, &#9; &nbsp; &nbsp; &nbsp; &nbsp; 1, &#9;0, &#9;0]*** <br>
-***&#9; \[ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 0, &#9; &nbsp; &nbsp; &nbsp; &nbsp; 0, &#9;1, &nbsp; &nbsp; &nbsp; &nbsp;0.303]*** <br>
-***&#9; \[ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 0, &#9; &nbsp; &nbsp; &nbsp; &nbsp; 0, &#9;0,    &#9;1]]*** <br>
+T6_G = Matrix[[       1,          0,    0,      0],
+              [       0,          1,    0,      0],
+              [       0,          0,    1,  0.303],
+              [       0,          0,    0,      1]]
+```
 
 #### Generalized homogeneous transform between base_link and gripper_link
 
@@ -112,10 +120,12 @@ the roll, pitch and yaw values in the gripper pose by multiplying the
 rotation matrices R<sub>X</sub>(roll), R<sub>Y</sub>(pitch) and
 R<sub>Z</sub>(yaw).
 
-***T<sub>rpy</sub> = &#9;\[\[ &#9; &#9; &nbsp; cos(P)\*cos(Y), &#9; &#9; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;-sin(Y)\*cos(P), &#9;sin(P), &#9; P<sub>x</sub>]*** <br>
-***&#9; \[ sin(P)\*sin(R)\*cos(Y) + sin(Y)\*cos(R), &nbsp; -sin(P)\*sin(R)\*sin(Y) + cos(R)\*cos(Y), &nbsp; &nbsp;-sin(R)\*cos(P), &#9; P<sub>y</sub>]*** <br>
-***&#9; \[-sin(P)\*cos(R)\*cos(Y) + sin(R)\*sin(Y), &nbsp; sin(P)\*sin(Y)\*cos(R) + sin(R)\*cos(Y), &nbsp; &nbsp; &nbsp;cos(P)\*cos(R), &#9; P<sub>z</sub>]*** <br>
-***&#9; \[ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 0, &#9; &nbsp; &nbsp; &nbsp; &nbsp; 0, &#9;0,    &#9;1]]*** <br>
+```
+Trpy = Matrix[[                        cos(P)*cos(Y),                         -sin(Y)*cos(P),           sin(P),     Px],
+              [ sin(P)*sin(R)*cos(Y) + sin(Y)*cos(R),  -sin(P)*sin(R)*sin(Y) + cos(R)*cos(Y),   -sin(R)*cos(P),     Py],
+              [-sin(P)*cos(R)*cos(Y) + sin(R)*sin(Y),   sin(P)*sin(Y)*cos(R) + sin(R)*cos(Y),    cos(P)*cos(R),     Pz],
+              [                                    0,                                      0,                0,      1]]
+```
 
 The rotation still needs to be corrected to align it with the gripper
 frame. The resulting frame from the transform above should be rotated
@@ -124,19 +134,108 @@ along the *Z* axis.
 
 ***T<sub>corr</sub> = R<sub>Z</sub>(&pi;) \* R<sub>Y</sub>(-&pi;/2)***
 
-***T<sub>corr</sub> = &#9;\[\[ 0, &#9;0, &#9;1, &#9;0]*** <br>
-***&#9; \[ 0, &#9;-1, &#9;0, &#9;0]*** <br>
-***&#9; \[ 1, &#9;0, &#9;0, &#9;0]*** <br>
-***&#9; \[ 0, &#9;0, &#9;0,    &#9;1]]*** <br>
+```
+Tcorr = Matrix[[ 0,  0,  1,  0],
+               [ 0, -1,  0,  0],
+               [ 1,  0,  0,  0],
+               [ 0,  0,  0,  1]]
+```
 
 the generalized transform is given by
 ***T<sub>total</sub> = T<sub>rpy</sub> \* T<sub>corr</sub>*** .
 
-***T<sub>total</sub> = &#9;\[\[ &nbsp; &nbsp;  &nbsp; &nbsp;  &nbsp; &nbsp; sin(P), &#9; &#9; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sin(Y)\*cos(P), &#9; &#9; &#9; cos(P)\*cos(Y), &#9; P<sub>x</sub>]*** <br>
-***&#9; \[ sin(R)\*cos(P), &nbsp; sin(P)\*sin(R)\*sin(Y) - cos(R)\*cos(Y), &nbsp; sin(P)\*sin(R)\*cos(Y) + sin(Y)\*cos(R), &#9; P<sub>y</sub>]*** <br>
-***&#9; \[cos(P)\*cos(R), &nbsp;-sin(P)\*sin(Y)\*cos(R) - sin(R)\*cos(Y), &nbsp;-sin(P)\*cos(R)\*cos(Y) + sin(R)\*sin(Y), &#9; P<sub>z</sub>]*** <br>
-***&#9; \[ &#9; &nbsp; &nbsp;0, &#9; &#9; &#9;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0, &#9; &#9; &#9; &#9; &nbsp; 0, &#9; &nbsp;1]]*** <br>
+```
+Ttotal = Matrix[[        sin(P),                         sin(Y)*cos(P),                         cos(P)*cos(Y),  Px],
+                [ sin(R)*cos(P),  sin(P)*sin(R)*sin(Y) - cos(R)*cos(Y),  sin(P)*sin(R)*cos(Y) + sin(Y)*cos(R),  Py],
+                [ cos(P)*cos(R), -sin(P)*sin(Y)*cos(R) - sin(R)*cos(Y), -sin(P)*cos(R)*cos(Y) + sin(R)*sin(Y),  Pz],
+                [             0,                                     0,                                     0,   1]]
+```
 
-### Inverse Kinematics
+### Inverse kinematics
 
+The first step in solving the Inverse Kinematics (IK) problem is to
+calculate the wrist center pose relative to the base frame using the
+given end-effector (gripper) pose.
 
+We can use the `Trpy` defined in the
+[Generalized homogeneous transform](#generalized-homogeneous-transform-between-base_link-and-gripper_link)
+section above to get the vector the end effector is pointing to. The
+end effector is pointed along the ***X axis*** of the new frame. The
+columns of a rotation matrix form the basis vectors of the new frame
+relative to the base frame. This property can be used to translate along
+the ***X axis*** of the gripper's frame.
+
+```
+# Get wrist center position.
+wx = px - (s[d6] + s[d7]) * R0_G[0, 0]
+wy = py - (s[d6] + s[d7]) * R0_G[1, 0]
+wz = pz - (s[d6] + s[d7]) * R0_G[2, 0]
+```
+
+The first joint angle can be calculated by rotating the joint to point
+towards the wrist center. Imagine a vector from origin of the base frame
+to the projection of the wrist center on the x-y plane. The rotation
+angle is the angle between this vector and the x-axis, indicated as
+***&theta;<sub>1</sub>*** in the image below:
+
+**Figure**: &theta;<sub>1</sub> angle
+
+![Theta 1 angle](images/theta1_angle.png)
+
+```
+theta1 = atan2(wy, wx)
+```
+
+Next, to to calculate the ***&theta;<sub>2</sub>*** and
+***&theta;<sub>3</sub>*** angles, we need to find the origin of joint 2.
+We can substitute the ***&theta;<sub>1</sub>*** value calculated in the
+homogeneous transformation matrix ***<sup>0</sup><sub>2</sub>T*** to
+find the origin of joint 2 as shown below:
+
+```
+# Find the origin of the second link using theta1
+t0_2 = T0_2.evalf(subs={q1: theta1})
+o2 = [t0_2[0, 3], t0_2[1, 3], t0_2[2, 3]]
+```
+
+Imagine the plane containing link 2 and link 3. This plane can be used
+to create a new 2D reference frame (XZ axes) with ***O<sub>2</sub>***
+as the origin as shown in the figure below:
+
+![Theta 2 3 angles](images/theta_2_3_angles.png)
+
+The ***Z<sub>1</sub>'*** axis is parallel to ***Z<sub>1</sub>*** and the
+***X<sub>1</sub>'*** axis is parallel to the vector used to calculate
+***&theta;<sub>1</sub>*** .
+
+To calculate ***&theta;<sub>3</sub>*** , we should first find
+***&alpha;*** .
+
+***&alpha; = &pi; - &Phi;***
+
+***cos(&alpha;) = cos(&pi; - &Phi;)***
+
+***cos(&alpha;) = - cos(&Phi;)***
+
+Using cosine rule, we can find ***cos{&Phi;)*** .
+
+***cos{&Phi;) = (a<sub>2</sub><sup>2</sup> + l<sub>3</sub><sup>2</sup> - l<sub>2</sub><sup>2</sup>) / (2 \* a<sub>2</sub> \* l<sub>3</sub>)***
+
+which gives us ***cos(&alpha;)*** as:
+
+***cos(&alpha;) = (l<sub>2</sub><sup>2</sup> - a<sub>2</sub><sup>2</sup> - l<sub>3</sub><sup>2</sup>) / (2 \* a<sub>2</sub> \* l<sub>3</sub>) := D***
+
+We can get ***&alpha;*** using ***acos***, but the sign of the angle
+would be ambiguous. If we were able to calculate ***sin(&alpha;)*** we
+would be able to use ***atan2*** to get a signed angle.
+
+Using ***sin(&alpha;) = (1 - cos<sup>2</sup>(&alpha;))<sup>1/2</sup>***
+
+we get ***&alpha; = atan2((1 - D<sup>2</sup>)<sup>1/2</sup>, D)***
+
+```
+D1 = (l2**2 - s[a2]**2 - l3**2) / (2 * s[a2] * l3)
+D1 = np.clip(D1, None, 1.0)  # Avoids getting imaginary numbers.
+
+alpha = atan2(sqrt(1 - D1**2), D1)
+```
