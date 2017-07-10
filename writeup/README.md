@@ -159,7 +159,7 @@ The inverse kinematics problem can be divided into the following steps.
 2. Using trigonometry calculate ***&theta;<sub>1</sub>*** ,
    ***&theta;<sub>2</sub>*** and ***&theta;<sub>3</sub>*** .
 3. Find a set of Euler angles corresponding to the rotation matrix
-   ***<sup>3</sup><sub>0</sub>R***.
+   ***<sup>6</sup><sub>3</sub>R***.
 
 #### Wrist center
 
