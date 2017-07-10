@@ -190,17 +190,17 @@ def debug_calculate_IK():
 
 def calculate_IK(px, py, pz, roll, pitch, yaw, debug=False):
     # Get rotation matrix from gripper pose.
-    R0_G = Rxyz.evalf(subs={R: roll, P: pitch, Y: yaw})
+    Rrpy = Rxyz.evalf(subs={R: roll, P: pitch, Y: yaw})
 
     # Calculate Rrpy.
     R_corr = R_z * R_y
     R_corr = R_corr.evalf(subs={P: -(pi/2), Y: pi})
-    Rrpy = R0_G[0:3, 0:3] * R_corr
+    R0_G = Rrpy[0:3, 0:3] * R_corr
 
     # Get wrist center position.
-    wx = px - (s[d6] + s[d7]) * R0_G[0, 0]
-    wy = py - (s[d6] + s[d7]) * R0_G[1, 0]
-    wz = pz - (s[d6] + s[d7]) * R0_G[2, 0]
+    wx = px - (s[d6] + s[d7]) * Rrpy[0, 0]
+    wy = py - (s[d6] + s[d7]) * Rrpy[1, 0]
+    wz = pz - (s[d6] + s[d7]) * Rrpy[2, 0]
 
     # theta1 can be easily calculated by rotating the first joint towards the wrist center. Imagine a vector from origin
     # of the base frame to the projection of the wrist center on the x-y plane. The rotation angle is the angle between
@@ -252,7 +252,7 @@ def calculate_IK(px, py, pz, roll, pitch, yaw, debug=False):
     R0_3 = T0_3[0:3, 0:3]
     R0_3 = R0_3.evalf(subs={q1: theta1, q2: theta2, q3: theta3})
 
-    R3_6 = R0_3.transpose()[0:3, 0:3] * Rrpy[0:3, 0:3]
+    R3_6 = R0_3.transpose()[0:3, 0:3] * R0_G[0:3, 0:3]
 
     # R3_6 = Matrix([
     #     [-s(q4) * s(q6) + c(q4) * c(q5) * c(q6),    -s(q4) * c(q6) - s(q6) * c(q4) * c(q5),    -s(q5) * c(q4)],
@@ -261,11 +261,14 @@ def calculate_IK(px, py, pz, roll, pitch, yaw, debug=False):
     #
     # theta6 = atan2(-r22, r21)
     # theta5 = atan2(sqrt(r13**2 + r33**2), r23)
-    # theta6 = atan2(r33, -r13)
+    # theta4 = atan2(r33, -r13)
 
     theta6 = atan2(-R3_6[1, 1], R3_6[2, 1])
     theta5 = atan2(sqrt(R3_6[0, 2]**2 + R3_6[2, 2]**2), R3_6[1, 2])
     theta4 = atan2(R3_6[2, 2], -R3_6[0, 2])
+
+    # Sometimes theta5 goes over and causes collision
+    theta5 = np.clip(theta5, -2.18, 2.18)
 
     print '(theta1, theta2, theta3, theta4, theta5, theta6) = (', \
         theta1, ', ', theta2, ', ',  theta3, ', ', theta4, ', ', theta5, ', ', theta6, ')'
@@ -275,7 +278,7 @@ def handle_calculate_IK(req):
     rospy.loginfo("Received %s eef-poses from the plan" % len(req.poses))
     if len(req.poses) < 1:
         print "No valid poses received"
-        return -1
+        return -1 ## Not sure what to do here.
     else:
         # Initialize service response
         joint_trajectory_list = []
